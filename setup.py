@@ -1,8 +1,5 @@
 from setuptools import find_packages, setup
 
-with open("README.md") as f:
-    long_description = f.read()
-
 setup(
     name="chatspace",
     version="2.0.0",
@@ -13,7 +10,6 @@ setup(
     author_email="developers@scatterlab.co.kr",
     keywords=["spacing", "korean", "pingpong"],
     python_requires=">=3.7",
-    long_description=long_description,
     license="Apache License 2.0",
     zip_safe=False,
     classifiers=[
