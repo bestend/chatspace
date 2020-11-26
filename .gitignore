@@ -103,7 +103,10 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-.idea/
-.vscode/
+# editor specific
+.vscode/settings.json
 
-.DS_Store
+# custom
+model/
+logs/
+.vscode/sftp.json

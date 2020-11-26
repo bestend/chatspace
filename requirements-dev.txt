@@ -1,8 +1,9 @@
-flake8
-flake8-bugbear
-black
-pydocstyle
+# dev dependency
 isort
+black
+flake8
+
 pytest
 pytest-cov
-sklearn
+
+coveralls
