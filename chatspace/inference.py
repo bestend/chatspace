@@ -78,7 +78,7 @@ class Chatspace:
         return (
             tf.data.Dataset.from_tensor_slices(tf.constant(texts, dtype=tf.string))
             .map(_mapping_function, num_parallel_calls=tf.data.experimental.AUTOTUNE)
-            .padded_batch(batch_size, padding_values=0)
+            .padded_batch(batch_size, padded_shapes=[None], padding_values=0)
         )
 
     def generate_text(self, texts: List[str], space_pred: tf.Tensor) -> str:
