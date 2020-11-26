@@ -33,12 +33,6 @@ jobs:
             . env/bin/activate
             pytest --cov-branch --cov chatspace
 
-      - run:
-          name: Upload coverage report
-          command: |
-            . env/bin/activate
-            coveralls
-
   check-linting:
     executor: python-executor
     steps:
