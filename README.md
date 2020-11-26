@@ -1,7 +1,6 @@
 # Chatspace
 
 [![CircleCI](https://circleci.com/gh/pingpong-ai/chatspace.svg?style=svg)](https://circleci.com/gh/pingpong-ai/chatspace)
-[![Coverage Status](https://coveralls.io/repos/github/pingpong-ai/chatspace/badge.svg?t=9c3M1S)](https://coveralls.io/github/pingpong-ai/chatspace)
 
 Chatspace는 [스캐터랩 핑퐁팀](https://scatterlab.co.kr/pingpong)에서 만든 대화체에 잘 맞는 띄어쓰기 모델입니다.
 
