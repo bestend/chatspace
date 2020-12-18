@@ -1,4 +1,5 @@
 import tensorflow as tf
+import tensorflow_addons as tfa
 
 
 def sparse_categorical_crossentropy_with_ignore(y_true, y_pred, from_logits=False, axis=-1, ignore_id=-1):
@@ -19,7 +20,7 @@ def sparse_categorical_accuracy_with_ignore(y_true, y_pred, ignore_id=-1):
     return tf.keras.metrics.sparse_categorical_accuracy(y_true, y_pred)
 
 
-class SparseCategoricalCrossentropyWithIgnore(tf.python.keras.losses.LossFunctionWrapper):
+class SparseCategoricalCrossentropyWithIgnore(tfa.utils.keras_utils.LossFunctionWrapper):
     """
     ``ignore_id``를 고려하는 SparseCategoricalCrossentropy입니다.
 

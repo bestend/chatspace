@@ -1,6 +1,7 @@
 import json
+import multiprocessing
 import re
-from typing import List, Union
+from typing import List, Optional, Union
 
 import tensorflow as tf
 
@@ -40,25 +41,31 @@ class Chatspace:
             )
             self.lookup_table = tf.lookup.StaticHashTable(initializer=initializer, default_value=3)
 
-    def space(self, texts: Union[List[str], str], batch_size: int = 1) -> Union[List[str], str]:
+    def space(
+        self, texts: Union[List[str], str], batch_size: int = 1, num_process: Optional[int] = None
+    ) -> Union[List[str], str]:
         """
         주어진 문장 혹은 문장들의 띄어쓰기를 보정합니다.
 
         :param texts: 띄어쓰기를 하고자 하는 문장 또는 문장들
         :param batch_size: Inference를 수행할 배치의 크기
+        :param num_process: 문장을 띄어쓰기할 때 사용할 process의 개수
         :return: 띄어쓰기가 완료된 문장 또는 문장들
         """
         is_single_inference = isinstance(texts, str)
+        if num_process is None:
+            num_process = multiprocessing.cpu_count()
+
         texts = [texts] if is_single_inference else texts
         dataset = self.make_chatspace_inputs(texts, batch_size=batch_size)
 
         outputs = []
         for data in dataset:
             pred = self.model(data)["output_1"]
-            space_preds = tf.math.argmax(pred, axis=-1)
+            space_preds = tf.math.argmax(pred, axis=-1).numpy().tolist()
             outputs.extend(space_preds)
 
-        result = self.generate_text(texts, outputs)
+        result = self.generate_text(texts, outputs, num_process=num_process)
 
         return result[0] if is_single_inference else result
 
@@ -81,22 +88,25 @@ class Chatspace:
             .padded_batch(batch_size, padded_shapes=[None], padding_values=0)
         )
 
-    def generate_text(self, texts: List[str], space_pred: tf.Tensor) -> str:
+    def generate_text(self, texts: List[str], space_pred: List[List[int]], num_process: int) -> str:
         """
         추론된 결과를 바탕으로 실제 문장에 띄어쓰기를 반영합니다.
 
         :param texts: 띄어쓰기가 옳바르지 않은 원본 문장
         :param space_pred: ChatspaceModel 에서 나온 결과를 Argmax한 Tensor (``[batch, seq_len]``)
+        :param num_process: 사용할 Process의 개수
         :return: 띄어쓰기가 반영된 문장
         """
-        result = []
-        for text, pred in zip(texts, space_pred):
-            generated_sentence = [
-                # BOS 때문에 text[i] 와 pred[i + 1] 이 대응됩니다.
-                text[i] + (" " if pred[i + 1] == 1 else "")
-                for i in range(len(text))
-            ]
-            joined_chars = "".join(generated_sentence)
-            result.append(re.sub(r"\s+", " ", joined_chars).strip())
+        with multiprocessing.Pool(num_process) as pool:
+            return pool.starmap(self._generate_single_sentence, zip(texts, space_pred))
 
-        return result
+    @staticmethod
+    def _generate_single_sentence(text, pred):
+        generated_sentence = [
+            # BOS 때문에 text[i] 와 pred[i + 1] 이 대응됩니다.
+            text[i] + (" " if pred[i + 1] == 1 else "")
+            for i in range(len(text))
+        ]
+        joined_chars = "".join(generated_sentence)
+
+        return re.sub(r"\s+", " ", joined_chars).strip()

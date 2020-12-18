@@ -5,7 +5,7 @@ with open("README.md") as f:
 
 setup(
     name="chatspace",
-    version="2.0.1",
+    version="2.0.2",
     description="Spacing model for Korean chat-style texts",
     install_requires=["tensorflow>=2.0"],
     url="https://github.com/pingpong-ai/chatspace.git",
